@@ -15,6 +15,6 @@ ERROR: (gcloud.app.deploy) Error Response: [9]
 Application startup error! Code: APP_CONTAINER_CRASHED
 /bin/sh: 1: exec: gunicorn: not found
 
-Gcloud file path for directory housing all files:
+Gcloud file path for the directory housing all files:
 
 /home/merobi/python-docs-samples/appengine/flexible/bibliomania
