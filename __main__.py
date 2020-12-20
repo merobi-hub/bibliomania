@@ -31,43 +31,52 @@ app = Flask(__name__)
 # len - start_pos = 1827855
 # note: use 1827855 as terminus
 
+# Sign in to Twitter using Tweepy
 def auth():
-    auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
-    auth.set_access_token(access_token, access_token_secret)
+    auth = tweepy.OAuthHandler(hidden.consumer_key, hidden.consumer_secret)
+    auth.set_access_token(hidden.access_token, hidden.access_token_secret)
     return tweepy.API(auth)
+try:
+    api = auth()
+    print('Auth status: success')
+except:
+    print('Auth status: failure')
 
+chunk_wrp = 'None'
+
+# Create first or next chunk of text to post and post tweet
 def get_chunk():
-    url = "http://www.gutenberg.org/files/28540/28540-h/28540-h.htm"
-    html = urlopen(url).read()
-    soup = BeautifulSoup(html, "html.parser")
-    text = soup.decode()
-    cleantext = BeautifulSoup(text, "html.parser").text.strip()
-    chunk_wrp = ""
-    #start_pos = cleantext.find('ADVERTISEMENT')
-    #print('Start', start_pos)
-    #print(type(cleantext))
-    #print(len(cleantext))
+    print('get_chunk attempted')
     got_chunk = False
     tag = ' #bibliomania1809'
-    if index <= 1827855:
-        for chunk in cleantext:
-            chunk = cleantext[index:index + 262]
-            chunk = chunk + tag
-            chunk_wrp = textwrap.fill(chunk)
-            got_chunk = True
-            if chunk_wrp is not None:
-                break
+    for chunk in cleantext:
+        chunk = cleantext[index:index + 262]
+        chunk = chunk + tag
+        new_chunk = textwrap.fill(chunk)
+        got_chunk = True
+        if new_chunk is not None:
+            break
+    chunk_wrp = new_chunk
     print('Chunk_wrp: ', chunk_wrp)
     print('Index: ', index)
-    posted_new_index = False
     if got_chunk:
         new_index = index + 262
-        with open('/home/merobi/python-docs-samples/appengine/flexible/bibliomania/var.py', 'w+') as f:
+        update = False
+        with open('var.py', 'w+') as f:
             f.write(f'index = {new_index}')
             f.close()
-        posted_new_index = True
+            update = True
         print('New index: ', new_index)
-        
+    if update:
+        print('attempting tweet')
+        try:
+            #api.update_status('test')
+            api.update_status(chunk_wrp)
+            print('status updated')
+        except:
+            print('Status update failed')
+
+get_chunk()   
 
 def web_output(environ, start_response):
     body = '<center><p><h1>Bibliomania</h1></p>
@@ -80,12 +89,9 @@ def web_output(environ, start_response):
 
 #get and tweet the chunk:
 get_chunk()
-api = auth()
-api.update_status(chunk_wrp)
+
+#output to web:
 web_output(environ, start_response)
-
-
-
 
 @app.errorhandler(500)
 def server_error(e):
