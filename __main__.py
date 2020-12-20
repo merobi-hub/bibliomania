@@ -10,8 +10,7 @@ import textwrap
 from var import index
 from hidden import consumer_key, consumer_secret, access_token, access_token_secret
 import tweepy
-#import schedule
-#import time
+from tweepy import TweepError
 #from thisapp.wsgi import application
 
 #app = application
@@ -68,7 +67,7 @@ def get_chunk():
             f.close()
         posted_new_index = True
         print('New index: ', new_index)
-        exit()
+        
 
 def web_output(environ, start_response):
     body = '<center><p><h1>Bibliomania</h1></p>
@@ -81,8 +80,8 @@ def web_output(environ, start_response):
 
 #get and tweet the chunk:
 get_chunk()
-#api = auth()
-#api.update_status(chunk_wrp)
+api = auth()
+api.update_status(chunk_wrp)
 web_output(environ, start_response)
 
 
