@@ -8,13 +8,10 @@ The code can open, slice, and post text from any html file, but the envisioned p
 
 # status and issues
 
-Development faces some execution issues, and the code can currently be run only from the command line. The objective is to house the app on Gcloud in a flexible environment. Web output is simply the twitter account's timeline. The most recent attempt to run the app on Gcloud produced the following error message:
+Development faces some execution issues, and the code can currently be run only from the command line. The objective is to house the app on Gcloud in a standard Python 3 environment. Web output is simply the twitter account's timeline. The most recent attempt to run the app on Gcloud produced the following error message:
 
 Updating service [default] (this may take several minutes)...failed.
 ERROR: (gcloud.app.deploy) Error Response: [9] 
 Application startup error! Code: APP_CONTAINER_CRASHED
 /bin/sh: 1: exec: gunicorn: not found
 
-Gcloud file path for the directory housing all files:
-
-/home/merobi/python-docs-samples/appengine/flexible/bibliomania
