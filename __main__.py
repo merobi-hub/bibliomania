@@ -1,104 +1,103 @@
-# [START gae_flex_quickstart]
-
-from wsgiref import headers
-from flask import Flask
+import datetime
+from flask import Flask, render_template
 import urllib.request, urllib.parse, urllib.error
 from urllib.request import urlopen
 from bs4 import BeautifulSoup
-import ssl
 import textwrap
-from var import index
+from text_position import index
 from hidden import consumer_key, consumer_secret, access_token, access_token_secret
 import tweepy
 from tweepy import TweepError
-#from thisapp.wsgi import application
 
-#app = application
-app = Flask(__name__)
+app = Flask(__name__, template_folder = 'templates')
 
 @app.route('/')
 
-# Ignore SSL certificate errors
-#ctx = ssl.create_default_context()
-#ctx.check_hostname = False
-#ctx.verify_mode = ssl.CERT_NONE
-
-
-
-# TEXT STATS:
-# length of cleantext = 1831990
-# start_pos = 4135
-# len - start_pos = 1827855
-# note: use 1827855 as terminus
+# Using Tweepy, create an OAuthHandler instance, pass in a consumer key and secret,
+# then use an access token and secret to open the Twitter API.
 
 def auth():
     auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
     auth.set_access_token(access_token, access_token_secret)
     return tweepy.API(auth)
 
+# Slice a segment of text from an ebook, then tweet it and update the text_position
+# file for the next instance. A cron job will automate tweeting of slices on a schedule.
+
 def get_chunk():
+
+    # Open the html version of the ebook, then parse and clean it using BeautifulSoup.
+    # The ebook used here is Thomas Frognall Dibdin's 1809 text about book collecting,
+    # _Bibliomania; or Book Madness_. For discussion of Dibdin and his circle of
+    # collectors, check out my book _The Queer Bookishness of Romanticism: Ornamental 
+    # Community_.
+    
     url = "http://www.gutenberg.org/files/28540/28540-h/28540-h.htm"
     html = urlopen(url).read()
     soup = BeautifulSoup(html, "html.parser")
     text = soup.decode()
     cleantext = BeautifulSoup(text, "html.parser").text.strip()
-    chunk_wrp = ""
-    #start_pos = cleantext.find('ADVERTISEMENT')
-    #print('Start', start_pos)
-    #print(type(cleantext))
-    #print(len(cleantext))
+
+    # Slice a Twitter-appropriate length of text using the index from text_position.
+
+    chunk_wrp = 'None'
+    url = 'None'
+    print('get_chunk attempted')
     got_chunk = False
     tag = ' #bibliomania1809'
-    if index <= 1827855:
-        for chunk in cleantext:
-            chunk = cleantext[index:index + 262]
-            chunk = chunk + tag
-            chunk_wrp = textwrap.fill(chunk)
-            got_chunk = True
-            if chunk_wrp is not None:
-                break
+    for chunk in cleantext:
+        chunk = cleantext[index:index + 262]
+        chunk = chunk + tag
+        new_chunk = textwrap.fill(chunk)
+        got_chunk = True
+        if new_chunk is not None:
+            break
+    chunk_wrp = new_chunk
     print('Chunk_wrp: ', chunk_wrp)
     print('Index: ', index)
-    posted_new_index = False
+
+    # For the next instance, update text_position with the endpoint of the slice.
+
     if got_chunk:
         new_index = index + 262
-        with open('/home/merobi/python-docs-samples/appengine/flexible/bibliomania/var.py', 'w+') as f:
-            f.write(f'index = {new_index}')
-            f.close()
-        posted_new_index = True
+        update = False
+        with open('text_position.py', 'w+') as f:
+            f.write(F'index = {new_index}')
+            #f.close()
+            update = True
         print('New index: ', new_index)
-        
 
-def web_output(environ, start_response):
-    body = '<center><p><h1>Bibliomania</h1></p>
-    <a class="twitter-timeline" href="https://twitter.com/BotBookish?ref_src=twsrc%5Etfw">Tweets by BotBookish</a> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
-    </center>' 
-    status = '200 OK'
-    headers = [('Content-type', 'html')]
-    start_response(status, headers)
-    return [body.encode('utf-8')]
+    # Send the current slice to Twitter.
 
-#get and tweet the chunk:
+    if update:
+        print('attempting tweet')
+        try:
+            api = auth()
+            print('Auth status: success')
+        except:
+            print('Auth status: failure')    
+        try:
+            #api.update_status('test')
+            api.update_status(chunk_wrp)
+            print('status updated')
+        except:
+            print('Status update failed')
+
+    # Create the app's weboutput by rendering an html template.
+
+        url = 'https://twitter.com/BotBookish?ref_src=twsrc%5Etfw'
+    return render_template('index.html', url = 'url')
+
+auth()
 get_chunk()
-api = auth()
-api.update_status(chunk_wrp)
-web_output(environ, start_response)
-
-
-
-
-@app.errorhandler(500)
-def server_error(e):
-    logging.exception('An error occurred during a request.')
-    return """
-    An internal error occurred: <pre>{}</pre>
-    See logs for full stacktrace.
-    """.format(e), 500
 
 if __name__ == '__main__':
-    # This is used when running locally. Gunicorn is used to run the
-    # application on Google App Engine. See entrypoint in app.yaml.
-    app.run(host=gunicorn -b :$PORT main:app, debug=True)
-
-('/')
-# [END gae_flex_quickstart]
+    # This is used when running locally only. When deploying to Google App
+    # Engine, a webserver process such as Gunicorn will serve the app. This
+    # can be configured by adding an `entrypoint` to app.yaml.
+    # Flask's development server will automatically serve static files in
+    # the "static" directory. See:
+    # http://flask.pocoo.org/docs/1.0/quickstart/#static-files. Once deployed,
+    # App Engine itself will serve those files as configured in app.yaml.
+    app.run(host='127.0.0.1', port=8080, debug=True)
+# [END gae_python38_render_template]
