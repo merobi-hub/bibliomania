@@ -1,6 +1,6 @@
 # bibliomania
 
-This Python code opens and slices html and then posts it sequentially to twitter with a hashtag. The app uses Tweepy for twitter authorization and Beautiful Soup for text parsing. A cron job handles the scheduling of tweets, and a separate file (var.py) keeps track of the character count for determining where to start the next slice of text. Twitter credentials go in a separate file, hidden.py (not included here).
+This Python code opens and slices html and then posts it sequentially to twitter with a hashtag. The app uses Tweepy for twitter authorization and Beautiful Soup for text parsing. A cron job handles the scheduling of tweets, and a separate file (text_position.py) keeps track of the character count for determining where to start the next slice of text. Twitter credentials go in a separate file, hidden.py (not included here).
 
 <blockquote class="twitter-tweet"><p lang="en" dir="ltr">ublished the Physiognomical Portraits, a performance not divested of<br>interest—but failing in general success, from the prints being, in<br>many instances, a repetition of their precursors. The thought,<br>however, was a good one; and many of the heads are powerfu<a href="https://twitter.com/hashtag/bibliomania1809?src=hash&amp;ref_src=twsrc%5Etfw">#bibliomania1809</a></p>&mdash; Bookish Bot (@BotBookish) <a href="https://twitter.com/BotBookish/status/1334941991549984770?ref_src=twsrc%5Etfw">December 4, 2020</a></blockquote> 
 
