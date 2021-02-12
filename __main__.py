@@ -10,21 +10,23 @@ import tweepy
 from tweepy import TweepError
 
 app = Flask(__name__, template_folder = 'templates')
+app.config.update(
+    SERVER_NAME = "127.0.0.1:8080"
+)
 
 @app.route('/')
-
-# Using Tweepy, create an OAuthHandler instance, pass in a consumer key and secret,
-# then use an access token and secret to open the Twitter API.
-
-def auth():
-    auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
-    auth.set_access_token(access_token, access_token_secret)
-    return tweepy.API(auth)
 
 # Slice a segment of text from an ebook, then tweet it and update the text_position
 # file for the next instance. A cron job will automate tweeting of slices on a schedule.
 
 def get_chunk():
+
+    # Using Tweepy, create an OAuthHandler instance, pass in a consumer key and secret,
+    # then use an access token and secret to open the Twitter API.
+
+    auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+    auth.set_access_token(access_token, access_token_secret)
+    api = tweepy.API(auth)
 
     # Open the html version of the ebook, then parse and clean it using BeautifulSoup.
     # The ebook used here is Thomas Frognall Dibdin's 1809 text about book collecting,
@@ -72,11 +74,6 @@ def get_chunk():
     if update:
         print('attempting tweet')
         try:
-            api = auth()
-            print('Auth status: success')
-        except:
-            print('Auth status: failure')    
-        try:
             #api.update_status('test')
             api.update_status(chunk_wrp)
             print('status updated')
@@ -85,13 +82,11 @@ def get_chunk():
 
     # Create the app's weboutput by rendering an html template.
 
-        url = 'https://twitter.com/BotBookish?ref_src=twsrc%5Etfw'
-    return render_template('index.html', url = 'url')
-
-auth()
-get_chunk()
-
+    with app.app_context():
+        return render_template('index.html', excrpt = chunk_wrp)
+        
 if __name__ == '__main__':
+    
     # This is used when running locally only. When deploying to Google App
     # Engine, a webserver process such as Gunicorn will serve the app. This
     # can be configured by adding an `entrypoint` to app.yaml.
@@ -101,3 +96,4 @@ if __name__ == '__main__':
     # App Engine itself will serve those files as configured in app.yaml.
     app.run(host='127.0.0.1', port=8080, debug=True)
 # [END gae_python38_render_template]
+
