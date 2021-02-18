@@ -1,25 +1,39 @@
 import datetime
-from flask import Flask, render_template
+from flask import Flask, render_template, request, jsonify
 import urllib.request, urllib.parse, urllib.error
 from urllib.request import urlopen
 from bs4 import BeautifulSoup
 import textwrap
-from text_position import index
 from hidden import consumer_key, consumer_secret, access_token, access_token_secret
 import tweepy
 from tweepy import TweepError
+import sys
+import requests
+import signal
+import os
 
 app = Flask(__name__, template_folder = 'templates')
 app.config.update(
     SERVER_NAME = "127.0.0.1:8080"
+    #SERVER_NAME = "bibliomania.nn.r.appspot.com"
 )
 
 @app.route('/')
 
-# Slice a segment of text from an ebook, then tweet it and update the text_position
-# file for the next instance. A cron job will automate tweeting of slices on a schedule.
-
 def get_chunk():
+    with open('app_status.txt') as f:
+        status = f.read()
+    status = status.rstrip()
+    status = int(status)
+    if status == 1:
+        with open('app_status.txt', 'w+') as f:
+            f.write(F'0')
+        print('exiting')    
+        die = requests.get('http://127.0.0.1:8080/shutdown')
+        die
+    if status == 0:
+        #return get_chunk()
+        pass
 
     # Using Tweepy, create an OAuthHandler instance, pass in a consumer key and secret,
     # then use an access token and secret to open the Twitter API.
@@ -47,6 +61,10 @@ def get_chunk():
     print('get_chunk attempted')
     got_chunk = False
     tag = ' #bibliomania1809'
+    with open('text_position.txt') as f:
+        index = f.read()
+    index = index.rstrip()
+    index = int(index)
     for chunk in cleantext:
         chunk = cleantext[index:index + 262]
         chunk = chunk + tag
@@ -63,8 +81,8 @@ def get_chunk():
     if got_chunk:
         new_index = index + 262
         update = False
-        with open('text_position.py', 'w+') as f:
-            f.write(F'index = {new_index}')
+        with open('text_position.txt', 'w+') as f:
+            f.write(F'{new_index}')
             #f.close()
             update = True
         print('New index: ', new_index)
@@ -73,18 +91,30 @@ def get_chunk():
 
     if update:
         print('attempting tweet')
+        tweet = False
         try:
             #api.update_status('test')
             api.update_status(chunk_wrp)
             print('status updated')
+            tweet = True
         except:
             print('Status update failed')
 
-    # Create the app's weboutput by rendering an html template.
+    # Create the app's weboutput by rendering an html template
 
-    with app.app_context():
-        return render_template('index.html', excrpt = chunk_wrp)
-        
+    if tweet:
+        with open('app_status.txt', 'w+') as f:
+            f.write(F'1')
+        die = requests.get('http://127.0.0.1:8080/shutdown')
+        with app.app_context():
+            return render_template('index.html', excrpt = chunk_wrp), die
+            
+@app.route('/shutdown', methods=['GET'])
+
+def shutdown():
+    print('Shutting down...')
+    return os.kill(os.getpid(), signal.SIGINT)
+
 if __name__ == '__main__':
     
     # This is used when running locally only. When deploying to Google App
@@ -94,6 +124,10 @@ if __name__ == '__main__':
     # the "static" directory. See:
     # http://flask.pocoo.org/docs/1.0/quickstart/#static-files. Once deployed,
     # App Engine itself will serve those files as configured in app.yaml.
-    app.run(host='127.0.0.1', port=8080, debug=True)
+    app.run(host='127.0.0.1', port=8080, debug=True, use_reloader=False)
+    
+
+    #app.run(host='bibliomania.nn.r.appspot.com', port=8080, debug=True)
 # [END gae_python38_render_template]
+
 
