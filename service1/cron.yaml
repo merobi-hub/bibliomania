@@ -1,0 +1,5 @@
+cron:
+- description: "bibliomania"
+  url: __main__.py
+  schedule: every 24 hours 21:00
+  timezone: America/New_York
