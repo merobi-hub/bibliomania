@@ -1,0 +1,19 @@
+body {
+  font-family: "helvetica", sans-serif;
+  text-align: center;
+}
+section {
+    width: 50px 
+}
+p {
+    width: 50%
+}
+#image {
+  z-index: 99;
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  height: 100%;
+  width: 100%;
+}

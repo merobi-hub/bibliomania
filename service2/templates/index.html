@@ -1,0 +1,36 @@
+<!doctype html>
+<html>
+<head>
+  <title>Bibliomania</title>
+  <script src="static/script.js"></script>
+  <link rel="stylesheet" href="static/style.css">
+</head>
+<body>
+    <section>
+  <center>
+  <p>
+      <image id="image" src="static/title.png" alt="Bibliomania">    
+  </p>
+  <p>A Twitter app by <a href="https://twitter.com/prosaicdrmr">@prosaicdrmr</a></p>
+  <p>Read the code on Github <a href="https://github.com/merobi-hub/bibliomania">here</a>.</p>
+  <p>
+    <h2>About</h2>
+  </p>
+  <p>
+    Bibliomania is a Python app hosted on Google Cloud's App Engine that opens and slices text from an ebook and then posts sequentially to Twitter with a hashtag. The app uses Tweepy for Twitter authorization and Beautiful Soup for text parsing. A cron job handles the scheduling of tweets, and a blob stores the character count of the last slice's endpoint (the "bookmark").
+  </p>  
+      <h2>Bookmark: <em style="background-color:lightgray;">{{ new_index }}</em></h2>
+      <h2>Time of last tweet: <em style="background-color:lightgray;">{{ tweettime }}</em></h2>
+      <h2>Current excerpt:</h2>
+      <p>
+      <h3><em style="background-color:lightgray;">{{ excrpt }}</em></h3>
+      </p>
+  </section>
+  <p>
+      <center>
+  <a class="twitter-timeline" href="https://twitter.com/BotBookish?ref_src=twsrc%5Etfw">Tweets by BotBookish</a> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script> 
+      </center>
+  </p>
+  </center>
+</body>
+</html>

@@ -1,0 +1,7 @@
+Flask==1.1.2
+gunicorn==19.10.0
+beautifulsoup4==4.9.3
+schedule==0.6.0
+tweepy==3.9.0
+urllib3==1.26.2
+google-cloud-storage
