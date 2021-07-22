@@ -94,7 +94,7 @@ def get_chunk():
     try:
         if check <= len(big_chunk):
             if big_chunk[term + 1] == '"':
-                term += 1
+                term = term + 1
                 chunk = big_chunk[0:term + 1]
     except:
         pass
@@ -110,7 +110,7 @@ def get_chunk():
         try:
             if chunk[term + 1] <= len(chunk):
                 if chunk[term + 1] == '"':
-                    term += 1
+                    term = term + 1
         except:
             pass
 
@@ -127,7 +127,7 @@ def get_chunk():
             try:
                 if chunk[term + 1] <= len(chunk):
                     if chunk[term] == '"':
-                        term += 1
+                        term = term + 1
             except:
                 pass
 
@@ -144,7 +144,7 @@ def get_chunk():
                 try:
                     if chunk[term + 1] <= len(chunk):
                         if chunk[term + 1] == '"':
-                            term += 1
+                            term = term + 1
                 except:
                     pass
 
@@ -161,7 +161,7 @@ def get_chunk():
                     try:
                         if chunk[term + 1] <= len(chunk):
                             if chunk[term + 1] == '"':
-                                term += 1
+                                term = term + 1
                     except:
                         pass
 
@@ -178,7 +178,7 @@ def get_chunk():
                         try:
                             if chunk[term + 1] <= len(chunk):
                                 if chunk[term] == '"':
-                                    term += 1
+                                    term = term + 1
                         except:
                             pass
 
